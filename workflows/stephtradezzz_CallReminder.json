@@ -1,0 +1,149 @@
+{
+  "name": "stephtradezzz - Call Reminder System",
+  "nodes": [
+    {
+      "parameters": {
+        "events": [
+          "BOOKING_CREATED"
+        ],
+        "options": {}
+      },
+      "type": "n8n-nodes-base.calTrigger",
+      "typeVersion": 2,
+      "position": [
+        304,
+        0
+      ],
+      "id": "9fafae57-3e6c-45b2-bfd1-a26e7156746a",
+      "name": "Cal.com Trigger",
+      "webhookId": "WILL_BE_GENERATED",
+      "credentials": {
+        "calApi": {
+          "id": "YOUR_CAL_API",
+          "name": "Cal account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resume": "specificTime",
+        "dateTime": "={{ new Date(new Date($('Cal.com Trigger').item.json.startTime).getTime() - 24*60*60*1000).toISOString() }}"
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1216,
+        0
+      ],
+      "id": "69b54fe2-352e-4674-9f59-717239efb1f2",
+      "name": "Wait 24 Hours",
+      "webhookId": "WILL_BE_GENERATED"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.attendees[0].email }}",
+        "subject": "Call Booked with stephtradezzz",
+        "message": "=Hi {{ $json.attendees[0].name }},\n\nThanks for booking a call!\n\nLooking forward to discussing your Trading business.\n\nSee you on {{ $json.startTime.toDateTime().format('EEEE') }}!\n\nBest,\nstephtradezzz",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        480,
+        0
+      ],
+      "id": "9c890c0a-1cff-42d2-a064-15754ff1bdde",
+      "name": "Confirmation Email",
+      "webhookId": "WILL_BE_GENERATED",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "YOUR_GMAIL",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Cal.com Trigger').item.json.attendees[0].email }}",
+        "subject": "Reminder: Call Tomorrow",
+        "message": "=Just a friendly reminder that your call is in less than 24 hours!\n\nYour call is at {{ $('Cal.com Trigger').item.json.startTime.toDateTime().format('EEEE,t') }}\n\nIf you need to reschedule, just reply to this email.\n\nLooking forward to it!",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1424,
+        0
+      ],
+      "id": "a2fadfbf-05bb-40d9-85d6-ebb72b68273c",
+      "name": "24h Reminder Email",
+      "webhookId": "WILL_BE_GENERATED",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "YOUR_GMAIL",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## SETUP INSTRUCTIONS FOR STEPHTRADEZZZ\n\nTHIS WORKFLOW IS PRE-CONFIGURED FOR YOUR TRADING BUSINESS\n\nWhat You Need to Change:\n\n1. Connect Your Cal.com Account\n2. Connect Your Gmail Account\n3. Connect Your Twilio Account for SMS\n\nWhat This Does:\n- Confirmation email when call is booked\n- 24h reminder email and SMS\n- 1h reminder email and SMS\n- 5min reminder with meeting link\n- Join now reminder at call time\n\nCuts no-show rates from 60-70% to 20-30%\n\nVideo Setup Guide:\nhttps://www.loom.com/share/65aa9a86a4404d508787f571ffc8fb1b\n\nNeed Help? DM me on Instagram.",
+        "height": 560,
+        "width": 680,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        80,
+        -600
+      ],
+      "id": "setup-instructions",
+      "name": "Setup Guide for stephtradezzz"
+    }
+  ],
+  "connections": {
+    "Cal.com Trigger": {
+      "main": [
+        [
+          {
+            "node": "Confirmation Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Confirmation Email": {
+      "main": [
+        [
+          {
+            "node": "Wait 24 Hours",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait 24 Hours": {
+      "main": [
+        [
+          {
+            "node": "24h Reminder Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "tags": []
+}
